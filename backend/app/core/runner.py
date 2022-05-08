@@ -1,3 +1,4 @@
+from great_expectations.checkpoint import Checkpoint
 from great_expectations.core import ExpectationSuite, ExpectationConfiguration
 from great_expectations.core.batch import RuntimeBatchRequest, BatchRequest
 from great_expectations.data_context import BaseDataContext
@@ -86,29 +87,44 @@ class Runner:
 
         suite: ExpectationSuite = context.create_expectation_suite("suite", overwrite_existing=True)
 
-        for expectation in self.expectations:
-            if self.batch.runtime_parameters:
-                expectation_meta = {**self.meta, **self.batch.runtime_parameters.dict(by_alias=True)}
-            else:
-                expectation_meta = {**self.meta}
+        self._add_expectations(suite)
 
-            if expectation.get("meta"):
-                expectation_meta = expectation.get("meta")
-
-            expectation_configuration = ExpectationConfiguration(
-                expectation_type=expectation["expectation_type"],
-                kwargs=expectation["kwargs"],
-                meta=expectation_meta,
-            )
-
-            suite.add_expectation(expectation_configuration=expectation_configuration)
-
+        context.save_expectation_suite(suite)
         batch_request = self.get_batch_request()
-        validator = context.get_validator(
-            batch_request=batch_request, expectation_suite=suite,
+
+        checkpoint = Checkpoint(
+            name=self.batch.dataset_name,
+            config_version=1,
+            data_context=context,
+            validations=[
+                {
+                    "batch_request": batch_request.to_json_dict(),
+                    "expectation_suite_name": "suite",
+                }
+            ],
+            action_list=[
+                {
+                    "name": "store_validation_result",
+                    "action": {"class_name": "StoreValidationResultAction"},
+                },
+                {
+                    "name": "Slack",
+                    "action": {
+                        "class_name": "StoreValidationResultAction",
+                        "slack_webhook": "StoreValidationResultAction",
+                        "notify_on": "StoreValidationResultAction",
+                        "notify_with": "StoreValidationResultAction",
+                        "renderer": {
+                            "module_name": "great_expectations.render.renderer.slack_renderer",
+                            "class_name": "SlackRenderer",
+                        }
+                    },
+                }
+            ]
         )
 
-        results = validator.validate().to_json_dict()["results"]
+        checkpoint_results = checkpoint.run()
+        results = checkpoint_results.list_validation_results()[0].to_json_dict()["results"]
 
         for result in results:
             if isinstance(result["result"].get("observed_value"), list):
@@ -184,3 +200,21 @@ class Runner:
                 data_asset_name=self.batch.dataset_name,
                 batch_spec_passthrough={"create_temp_table": False},
             )
+
+    def _add_expectations(self, suite: ExpectationSuite) -> None:
+        for expectation in self.expectations:
+            if self.batch.runtime_parameters:
+                expectation_meta = {**self.meta, **self.batch.runtime_parameters.dict(by_alias=True)}
+            else:
+                expectation_meta = {**self.meta}
+
+            if expectation.get("meta"):
+                expectation_meta = expectation.get("meta")
+
+            expectation_configuration = ExpectationConfiguration(
+                expectation_type=expectation["expectation_type"],
+                kwargs=expectation["kwargs"],
+                meta=expectation_meta,
+            )
+
+            suite.add_expectation(expectation_configuration=expectation_configuration)
