@@ -4,6 +4,7 @@ from app.api.api_v1.endpoints import (
     auth,
     dataset,
     dashboard,
+    team,
     datasource,
     expectation,
     runner,
@@ -28,6 +29,7 @@ router.include_router(validation.router, prefix="/validation", tags=["Validation
 router.include_router(suggestion.router, prefix="/suggestion", tags=["Suggestions"])
 router.include_router(introspect.router, prefix="/introspect", tags=["Introspect"])
 router.include_router(dashboard.router, prefix="/dashboard", tags=["Dashboard"])
+router.include_router(team.router, prefix="/team", tags=["Team"])
 
 router.include_router(
     fastapi_users.get_users_router(),

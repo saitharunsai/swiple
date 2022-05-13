@@ -3,7 +3,9 @@ import { Link, withRouter } from 'react-router-dom';
 import {
   Layout, Menu,
 } from 'antd';
-import { DatabaseOutlined, LineChartOutlined, TableOutlined } from '@ant-design/icons';
+import {
+  UserOutlined, DatabaseOutlined, LineChartOutlined, TableOutlined
+} from '@ant-design/icons';
 import PropTypes from 'prop-types';
 import paths from '../config/Routes';
 import {
@@ -31,6 +33,11 @@ const NavBar = withRouter((props) => {
       title: 'Datasets',
       pathName: [paths.DATASETS, paths.DATASET],
       icon: <TableOutlined />,
+    },
+    4: {
+      title: 'Teams',
+      pathName: [paths.TEAMS],
+      icon: <UserOutlined />,
     },
   };
 

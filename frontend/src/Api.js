@@ -54,6 +54,40 @@ export const getDashboardIssues = () => axios.get(`${BASE_URL}/dashboard/issue`)
   .catch((error) => errorHandler(error));
 
 // ========================================================
+// Team
+// ========================================================
+
+export const getTeams = () => axios.get(`${BASE_URL}/team`)
+  .then((response) => response)
+  .catch((error) => errorHandler(error));
+
+export const getTeam = (key) => axios.get(`${BASE_URL}/team/${key}`)
+  .then((response) => response)
+  .catch((error) => errorHandler(error));
+
+export const getUsers = () => axios.get(`${BASE_URL}/users/`)
+  .then((response) => response)
+  .catch((error) => errorHandler(error));
+
+export const postTeam = (data) => axios.post(
+  `${BASE_URL}/team`,
+  data,
+)
+  .then((response) => response)
+  .catch((error) => errorHandler(error));
+
+export const putTeam = (data, key) => axios.put(
+  `${BASE_URL}/datasource/${key}`,
+  data,
+)
+  .then((response) => response)
+  .catch((error) => errorHandler(error));
+
+export const deleteTeam = (key) => axios.delete(`${BASE_URL}/team/${key}`)
+  .then((data) => data.data)
+  .catch((error) => errorHandler(error));
+
+// ========================================================
 // Datasource
 // ========================================================
 

@@ -44,6 +44,7 @@ class Settings(BaseSettings):
     VALIDATION_INDEX: str = "validation"
     SUGGESTION_INDEX: str = "suggestion"
     USER_INDEX: str = "user"
+    TEAM_INDEX: str = "team"
 
     TOKEN_URL: str = "/api/v1/token"
     API_HOST_URL: HttpUrl = config.API_HOST_URL
