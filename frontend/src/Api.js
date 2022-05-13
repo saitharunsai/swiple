@@ -41,6 +41,10 @@ function errorHandler(error) {
   return null;
 }
 
+export const getUsers = () => axios.get(`${BASE_URL}/user`)
+  .then((response) => response)
+  .catch((error) => errorHandler(error));
+
 // ========================================================
 // Dashboard
 // ========================================================
@@ -65,10 +69,6 @@ export const getTeam = (key) => axios.get(`${BASE_URL}/team/${key}`)
   .then((response) => response)
   .catch((error) => errorHandler(error));
 
-export const getUsers = () => axios.get(`${BASE_URL}/users/`)
-  .then((response) => response)
-  .catch((error) => errorHandler(error));
-
 export const postTeam = (data) => axios.post(
   `${BASE_URL}/team`,
   data,
@@ -77,7 +77,7 @@ export const postTeam = (data) => axios.post(
   .catch((error) => errorHandler(error));
 
 export const putTeam = (data, key) => axios.put(
-  `${BASE_URL}/datasource/${key}`,
+  `${BASE_URL}/team/${key}`,
   data,
 )
   .then((response) => response)

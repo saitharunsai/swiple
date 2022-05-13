@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Button, Form, Input, message, Modal, Row, Select, Space, Typography,
+  Button, Form, Input, message, Modal, Row, Select, Typography,
 } from 'antd';
-import { postTeam, putTeam } from '../../../Api';
+import { getUsers, postTeam, putTeam } from '../../../Api';
 
 import AsyncButton from '../../../components/AsyncButton';
 
@@ -24,7 +24,25 @@ export const UPDATE_TYPE = 'UPDATE';
 function TeamModal({
   visible, type, editedTeam, onCancel, onFormSubmit,
 }) {
+  const [users, setUsers] = useState([]);
+  const [refreshUsers, setRefreshUsers] = useState(true);
+
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (refreshUsers) {
+      getUsers()
+        .then((response) => {
+          if (response.status === 200) {
+            console.log(response.data);
+            setUsers(response.data);
+          } else {
+            message.error('An error occurred while retrieving users.', 5);
+          }
+          setRefreshUsers(false);
+        });
+    }
+  }, [refreshUsers, setRefreshUsers]);
 
   useEffect(() => {
     if (type === UPDATE_TYPE && editedTeam !== null) {
@@ -32,7 +50,8 @@ function TeamModal({
     }
   }, [type, UPDATE_TYPE, editedTeam]);
 
-  const createOrUpdateDatasourceRequest = async (payload) => {
+  const createOrUpdateTeamRequest = async (payload) => {
+    console.log(payload);
     if (type === CREATE_TYPE) {
       return postTeam(payload).then((response) => response);
     }
@@ -49,7 +68,7 @@ function TeamModal({
   const onFormSubmitInternal = async () => {
     const { complete, values } = await isFormComplete();
     if (complete) {
-      const { status, data } = await createOrUpdateDatasourceRequest(values);
+      const { status, data } = await createOrUpdateTeamRequest(values);
 
       if (status === 200) {
         setTimeout(() => {
@@ -67,6 +86,18 @@ function TeamModal({
     }
     return null;
   };
+
+  const userOptions = () => users.map((item) => (
+    <Option
+      key={item.email}
+      value={item.email}
+      label={item.email}
+    >
+      <Row align="start" style={{ alignItems: 'center', color: 'black' }}>
+        {item.email}
+      </Row>
+    </Option>
+  ));
 
   const onCancelInternal = () => {
     // parent event callback
@@ -141,7 +172,9 @@ function TeamModal({
             },
           ]}
         >
-          <Select mode="multiple" allowClear />
+          <Select mode="multiple" allowClear>
+            {userOptions()}
+          </Select>
         </Form.Item>
       </Form>
     </Modal>

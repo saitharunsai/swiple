@@ -107,14 +107,15 @@ def create_dataset(
     dataset.create_date = utils.current_time()
     dataset.modified_date = utils.current_time()
 
+    dataset_as_dict = dataset.dict(by_alias=True)
+
     insert_dataset = client.index(
         index=settings.DATASET_INDEX,
         id=str(uuid.uuid4()),
-        body=dataset.dict(by_alias=True),
+        body=dataset_as_dict,
         refresh="wait_for",
     )
 
-    dataset_as_dict = dataset.dict(by_alias=True)
     dataset_as_dict["key"] = insert_dataset["_id"]
 
     return JSONResponse(

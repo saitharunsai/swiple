@@ -1,5 +1,5 @@
 import {
-  Button, Dropdown, Form, Layout, Menu, message, Modal, Row, Table, Typography,
+  Button, Dropdown, Tag, Layout, Menu, message, Modal, Row, Table, Typography,
 } from 'antd';
 import {
   DeleteFilled, EditFilled, EllipsisOutlined, ExclamationCircleOutlined, PlusOutlined,
@@ -92,10 +92,11 @@ export default function TeamOverview() {
     {
       title: 'Members',
       dataIndex: 'members',
-    },
-    {
-      title: 'CREATE DATE',
-      dataIndex: 'create_date',
+      render: (text, record) => text.map((item) => (
+        <Tag key={item}>
+          {item}
+        </Tag>
+      )),
     },
     {
       title: 'LAST MODIFIED',
