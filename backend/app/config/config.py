@@ -20,7 +20,7 @@ OPENSEARCH_USERNAME = "admin"
 OPENSEARCH_PASSWORD = "admin"
 
 USERNAME_AND_PASSWORD_ENABLED = True
-ADMIN_EMAIL = "email@something.com"
+ADMIN_EMAIL = "email1@something.com"
 ADMIN_PASSWORD = "admin"
 
 GITHUB_OAUTH_ENABLED = False

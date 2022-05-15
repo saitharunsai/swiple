@@ -9,6 +9,7 @@ import React, { useEffect, useState } from 'react';
 import Section from '../../components/Section';
 import TeamModal, { CREATE_TYPE, UPDATE_TYPE } from './components/TeamModal';
 import { deleteTeam, getTeams } from '../../Api';
+import moment from "moment";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -53,9 +54,9 @@ export default function TeamOverview() {
 
   const showDeleteModal = (record) => {
     confirm({
-      title: 'Delete Datasource',
+      title: 'Delete Team',
       icon: <ExclamationCircleOutlined />,
-      content: "Deleting a datasource will also remove it's datasets, expectations, and validations.",
+      content: 'Are you sure you would like to delete this team?',
       okText: 'Delete',
       okType: 'danger',
       onOk() {
@@ -101,6 +102,7 @@ export default function TeamOverview() {
     {
       title: 'LAST MODIFIED',
       dataIndex: 'modified_date',
+      render: (text) => moment(text.modified_date).local().fromNow(),
     },
     {
       title: '',

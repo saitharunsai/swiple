@@ -128,3 +128,20 @@ validation:
       run_date:
         format: yyyy-MM-dd HH:mm:ss.SSSSSSZZZZZ
         type: date
+
+team:
+  index_name: team
+  mappings:
+  properties:
+    team_name:
+      fielddata: true
+      fields:
+        keyword:
+          type: keyword
+      type: text
+    created_by:
+      type: keyword
+    create_date:
+      format: yyyy-MM-dd HH:mm:ss.SSSSSSZZZZZ
+    modified_date:
+      format: yyyy-MM-dd HH:mm:ss.SSSSSSZZZZZ

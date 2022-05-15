@@ -39,10 +39,10 @@ def list_teams(
 
     docs_response = []
     for doc in docs:
-        print(doc)
         docs_response.append(
             dict(**{"key": doc["_id"]}, **doc["_source"])
         )
+    print(docs_response)
     return JSONResponse(status_code=status.HTTP_200_OK, content=docs_response)
 
 
@@ -94,8 +94,11 @@ def update_team(
     team.create_date = original_team.create_date
     team.created_by = original_team.created_by
 
+    print(key)
+    print(team.dict(by_alias=True))
+
     response = client.update(
-        index=settings.DATASET_INDEX,
+        index=settings.TEAM_INDEX,
         id=key,
         body={"doc": team.dict(by_alias=True)},
         refresh="wait_for",
