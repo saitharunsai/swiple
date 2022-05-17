@@ -206,7 +206,7 @@ code {
   border-bottom: 1px solid #f0f0f0;
 }
 
-.expectation-documentation {
+.table-scroll-cell {
   max-height: 100px;
   overflow: scroll;
   white-space: normal;

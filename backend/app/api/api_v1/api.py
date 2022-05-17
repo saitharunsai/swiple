@@ -5,6 +5,7 @@ from app.api.api_v1.endpoints import (
     dataset,
     dashboard,
     team,
+    action,
     user,
     datasource,
     expectation,
@@ -31,6 +32,7 @@ router.include_router(suggestion.router, prefix="/suggestion", tags=["Suggestion
 router.include_router(introspect.router, prefix="/introspect", tags=["Introspect"])
 router.include_router(dashboard.router, prefix="/dashboard", tags=["Dashboard"])
 router.include_router(team.router, prefix="/team", tags=["Team"])
+router.include_router(action.router, prefix="/action", tags=["Action"])
 
 router.include_router(
     user.router,

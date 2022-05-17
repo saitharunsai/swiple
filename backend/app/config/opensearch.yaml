@@ -132,16 +132,43 @@ validation:
 team:
   index_name: team
   mappings:
-  properties:
-    team_name:
-      fielddata: true
-      fields:
-        keyword:
-          type: keyword
-      type: text
-    created_by:
-      type: keyword
-    create_date:
-      format: yyyy-MM-dd HH:mm:ss.SSSSSSZZZZZ
-    modified_date:
-      format: yyyy-MM-dd HH:mm:ss.SSSSSSZZZZZ
+    properties:
+      team_name:
+        fielddata: true
+        fields:
+          keyword:
+            type: keyword
+        type: text
+      created_by:
+        type: keyword
+      create_date:
+        format: yyyy-MM-dd HH:mm:ss.SSSSSSZZZZZ
+      modified_date:
+        format: yyyy-MM-dd HH:mm:ss.SSSSSSZZZZZ
+
+action:
+  index_name: action
+  mappings:
+    properties:
+      action_name:
+        fielddata: true
+        fields:
+          keyword:
+            type: keyword
+        type: text
+      action_type:
+        fielddata: true
+        fields:
+          keyword:
+            type: keyword
+        type: text
+      notify_on:
+        type: keyword
+      create_date:
+        format: yyyy-MM-dd HH:mm:ss.SSSSSSZZZZZ
+        type: date
+      created_by:
+        type: keyword
+      modified_date:
+        format: yyyy-MM-dd HH:mm:ss.SSSSSSZZZZZ
+        type: date

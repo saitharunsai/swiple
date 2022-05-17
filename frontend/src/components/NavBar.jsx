@@ -4,7 +4,7 @@ import {
   Layout, Menu,
 } from 'antd';
 import {
-  UserOutlined, DatabaseOutlined, LineChartOutlined, TableOutlined
+  UserOutlined, DatabaseOutlined, LineChartOutlined, TableOutlined, NotificationOutlined,
 } from '@ant-design/icons';
 import PropTypes from 'prop-types';
 import paths from '../config/Routes';
@@ -38,6 +38,11 @@ const NavBar = withRouter((props) => {
       title: 'Teams',
       pathName: [paths.TEAMS],
       icon: <UserOutlined />,
+    },
+    5: {
+      title: 'Actions',
+      pathName: [paths.ACTIONS],
+      icon: <NotificationOutlined />,
     },
   };
 

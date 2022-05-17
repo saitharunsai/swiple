@@ -88,6 +88,36 @@ export const deleteTeam = (key) => axios.delete(`${BASE_URL}/team/${key}`)
   .catch((error) => errorHandler(error));
 
 // ========================================================
+// Action
+// ========================================================
+
+export const getActions = () => axios.get(`${BASE_URL}/action`)
+  .then((response) => response)
+  .catch((error) => errorHandler(error));
+
+export const getAction = (key) => axios.get(`${BASE_URL}/action/${key}`)
+  .then((response) => response)
+  .catch((error) => errorHandler(error));
+
+export const postAction = (data) => axios.post(
+  `${BASE_URL}/action`,
+  data,
+)
+  .then((response) => response)
+  .catch((error) => errorHandler(error));
+
+export const putAction = (data, key) => axios.put(
+  `${BASE_URL}/action/${key}`,
+  data,
+)
+  .then((response) => response)
+  .catch((error) => errorHandler(error));
+
+export const deleteAction = (key) => axios.delete(`${BASE_URL}/action/${key}`)
+  .then((data) => data.data)
+  .catch((error) => errorHandler(error));
+
+// ========================================================
 // Datasource
 // ========================================================
 

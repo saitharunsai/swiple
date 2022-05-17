@@ -47,3 +47,9 @@ EXPECT_COLUMN_PAIR_VALUES_TO_BE_EQUAL = "expect_column_pair_values_to_be_equal"
 COLUMN_MAP_EXPECTATION = "column_map_expectation"
 COLUMN_AGGREGATE_EXPECTATION = "column_aggregate_expectation"
 EXPECTATION = "expectation"
+
+
+# Actions
+EMAIL = "email"
+OPS_GENIE = "ops_genie"
+SLACK = "slack"

@@ -8,59 +8,59 @@ import { v4 as uuidv4 } from 'uuid';
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
 import Section from '../../components/Section';
-import TeamModal, { CREATE_TYPE, UPDATE_TYPE } from './components/TeamModal';
-import { deleteTeam, getTeams } from '../../Api';
+import ActionModal, { CREATE_TYPE, UPDATE_TYPE } from './components/actionModal';
+import { deleteAction, getActions } from '../../Api';
 
 const { Content } = Layout;
 const { Title } = Typography;
 const { confirm } = Modal;
 
-export default function TeamOverview() {
-  const [teamModal, setTeamModal] = useState({ visible: false, type: '' });
-  const [refreshTeams, setRefreshTeams] = useState(true);
-  const [teams, setTeams] = useState([]);
+export default function actionOverview() {
+  const [actionModal, setActionModal] = useState({ visible: false, type: '' });
+  const [refreshActions, setRefreshActions] = useState(true);
+  const [actions, setActions] = useState([]);
 
   useEffect(() => {
-    if (refreshTeams) {
-      getTeams()
+    if (refreshActions) {
+      getActions()
         .then((response) => {
           if (response.status === 200) {
-            setTeams(response.data);
+            setActions(response.data);
           } else {
             message.error('An error occurred while retrieving data sources.', 5);
           }
-          setRefreshTeams(false);
+          setRefreshActions(false);
         });
     }
-  }, [refreshTeams, setRefreshTeams]);
+  }, [refreshActions, setRefreshActions]);
 
-  const openTeamModal = (modalType, record = null) => {
-    let team = null;
+  const openActionModal = (modalType, record = null) => {
+    let action = null;
     if (modalType === UPDATE_TYPE) {
-      [team] = teams.filter((item) => item.key === record.key);
+      [action] = actions.filter((item) => item.key === record.key);
     }
 
-    setTeamModal({
-      visible: true, type: modalType, team,
+    setActionModal({
+      visible: true, type: modalType, action,
     });
   };
 
-  const removeTeam = (row) => new Promise((resolve, reject) => {
-    deleteTeam(row.key).then(() => {
-      setTeams(teams.filter((item) => item.key !== row.key));
+  const removeAction = (row) => new Promise((resolve, reject) => {
+    deleteAction(row.key).then(() => {
+      setActions(actions.filter((item) => item.key !== row.key));
       resolve();
     }).catch(() => reject());
   });
 
   const showDeleteModal = (record) => {
     confirm({
-      title: 'Delete Team',
+      title: 'Delete Action',
       icon: <ExclamationCircleOutlined />,
-      content: 'Are you sure you would like to delete this team?',
+      content: 'Are you sure you would like to delete this action?',
       okText: 'Delete',
       okType: 'danger',
       onOk() {
-        return removeTeam(record);
+        return removeAction(record);
       },
       onCancel() {},
     });
@@ -71,7 +71,7 @@ export default function TeamOverview() {
       <Menu.Item
         key="1"
         icon={<EditFilled />}
-        onClick={() => openTeamModal(UPDATE_TYPE, record)}
+        onClick={() => openActionModal(UPDATE_TYPE, record)}
       >
         Edit
       </Menu.Item>
@@ -87,23 +87,12 @@ export default function TeamOverview() {
 
   const columns = [
     {
-      title: 'Team Name',
-      dataIndex: 'team_name',
+      title: 'Action Name',
+      dataIndex: 'action_name',
     },
     {
-      title: 'Members',
-      dataIndex: 'members',
-      render: (text) => (
-        <div className="table-scroll-cell">
-          {
-            text.map((item) => (
-              <Tag key={item}>
-                {item}
-              </Tag>
-            ))
-          }
-        </div>
-      ),
+      title: 'Action Type',
+      dataIndex: 'action_type',
     },
     {
       title: 'LAST MODIFIED',
@@ -144,7 +133,7 @@ export default function TeamOverview() {
                 className="card-list-header"
                 level={4}
               >
-                Teams
+                Actions
               </Title>
               <Button
                 className="card-list-button-dark"
@@ -152,31 +141,31 @@ export default function TeamOverview() {
                 type="primary"
                 icon={<PlusOutlined />}
                 size="medium"
-                onClick={() => openTeamModal(CREATE_TYPE)}
+                onClick={() => openActionModal(CREATE_TYPE)}
               >
-                Team
+                Action
               </Button>
-              <TeamModal
-                visible={teamModal.visible}
-                type={teamModal.type}
-                editedTeam={teamModal.team_name}
+              <ActionModal
+                visible={actionModal.visible}
+                type={actionModal.type}
+                editedAction={actionModal.datasource}
                 onCancel={() => {
-                  setTeamModal({
+                  setActionModal({
                     visible: false, type: '', team_name: null, members: [],
                   });
                 }}
                 onFormSubmit={() => {
-                  setTeamModal({
+                  setActionModal({
                     visible: false, type: '', team_name: null, members: [],
                   });
-                  setRefreshTeams(true);
+                  setRefreshActions(true);
                 }}
               />
             </Row>
           </Typography>
           <Table
             columns={columns}
-            dataSource={teams}
+            dataSource={actions}
             pagination={{ position: ['bottomRight'] }}
             rowKey={() => uuidv4()}
           />

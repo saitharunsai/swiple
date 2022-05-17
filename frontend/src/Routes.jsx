@@ -8,7 +8,8 @@ import DatasetOverview from './screens/datasetOverview';
 import Dataset from './screens/dataset';
 import { RequireAuth, AuthProvider } from './Auth';
 import paths from './config/Routes';
-import TeamOverview from "./screens/teamOverview";
+import TeamOverview from './screens/teamOverview';
+import ActionOverview from './screens/actionOverview';
 
 function PrivateRoute({ component, path, ...rest }) {
   return (
@@ -63,11 +64,11 @@ function Routes() {
           path={paths.TEAMS}
           component={<TeamOverview />}
         />
-        {/*<PrivateRoute*/}
-        {/*  exact*/}
-        {/*  path={paths.ACTIONS}*/}
-        {/*  component={<Dataset />}*/}
-        {/*/>*/}
+        <PrivateRoute
+          exact
+          path={paths.ACTIONS}
+          component={<ActionOverview />}
+        />
         <Redirect
           from="*"
           to={paths.DASHBOARD}

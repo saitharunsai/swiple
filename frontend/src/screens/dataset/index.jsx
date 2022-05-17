@@ -224,7 +224,7 @@ const Dataset = withRouter(() => {
       title: 'DOCUMENTATION',
       dataIndex: 'documentation',
       render: (text) => (
-        <p className="expectation-documentation">
+        <p className="table-scroll-cell">
           {text}
         </p>
       ),
@@ -350,7 +350,7 @@ const Dataset = withRouter(() => {
       title: 'DOCUMENTATION',
       dataIndex: 'documentation',
       render: (text) => (
-        <p className="expectation-documentation">
+        <p className="table-scroll-cell">
           {text}
         </p>
       ),

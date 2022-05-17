@@ -45,6 +45,7 @@ class Settings(BaseSettings):
     SUGGESTION_INDEX: str = "suggestion"
     USER_INDEX: str = "user"
     TEAM_INDEX: str = "team"
+    ACTION_INDEX: str = "action"
 
     TOKEN_URL: str = "/api/v1/token"
     API_HOST_URL: HttpUrl = config.API_HOST_URL
