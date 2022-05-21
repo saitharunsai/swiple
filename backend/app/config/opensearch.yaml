@@ -143,8 +143,10 @@ team:
         type: keyword
       create_date:
         format: yyyy-MM-dd HH:mm:ss.SSSSSSZZZZZ
+        type: date
       modified_date:
         format: yyyy-MM-dd HH:mm:ss.SSSSSSZZZZZ
+        type: date
 
 action:
   index_name: action
@@ -162,8 +164,8 @@ action:
           keyword:
             type: keyword
         type: text
-      notify_on:
-        type: keyword
+      kwargs:
+        type: object
       create_date:
         format: yyyy-MM-dd HH:mm:ss.SSSSSSZZZZZ
         type: date

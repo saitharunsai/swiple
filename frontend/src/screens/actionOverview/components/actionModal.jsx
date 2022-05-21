@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Button, Form, Input, message, Modal, Row, Select, Typography,
+  Button, Form, Input, message, Modal, Row, Select,
 } from 'antd';
-import { getUsers, postAction, putAction } from '../../../Api';
-
+import {
+  getActionsJsonSchema, getUsers, postAction, putAction,
+} from '../../../Api';
 import AsyncButton from '../../../components/AsyncButton';
 
+import ajv from '../../../JsonSchemaFormValidator';
+
 const { Option } = Select;
-const { Text } = Typography;
 const layout = {
   labelCol: {
     span: 8,
@@ -22,12 +24,30 @@ export const CREATE_TYPE = 'CREATE';
 export const UPDATE_TYPE = 'UPDATE';
 
 function ActionModal({
-  visible, type, editedTeam, onCancel, onFormSubmit,
+  visible, type, editedAction, onCancel, onFormSubmit,
 }) {
+  const [refreshActionJsonSchema, setRefreshActionJsonSchema] = useState(true);
+  const [actionJsonSchema, setActionJsonSchema] = useState([]);
   const [users, setUsers] = useState([]);
   const [refreshUsers, setRefreshUsers] = useState(true);
+  const [selectedAction, setSelectedAction] = useState('');
 
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (refreshActionJsonSchema) {
+      getActionsJsonSchema()
+        .then((response) => {
+          if (response.status === 200) {
+            setActionJsonSchema(response.data);
+            setRefreshActionJsonSchema(false);
+            // setActions(response.data.filter((item) => item.action_name === datasourceId)[0]);
+          } else {
+            message.error('An error occurred while retrieving data sources schema.', 5);
+          }
+        });
+    }
+  }, [refreshActionJsonSchema, setRefreshActionJsonSchema]);
 
   useEffect(() => {
     if (refreshUsers) {
@@ -45,17 +65,32 @@ function ActionModal({
   }, [refreshUsers, setRefreshUsers]);
 
   useEffect(() => {
-    if (type === UPDATE_TYPE && editedTeam !== null) {
-      form.setFieldsValue(editedTeam);
+    if (type === UPDATE_TYPE && editedAction !== null) {
+      form.setFieldsValue(editedAction);
     }
-  }, [type, UPDATE_TYPE, editedTeam]);
+  }, [type, UPDATE_TYPE, editedAction]);
 
-  const createOrUpdateActionRequest = async (payload) => {
-    console.log(payload);
+  const createOrUpdateActionRequest = async (data) => {
+    const payload = data;
+    const actionName = payload.action_name;
+    const actionType = payload.action_type;
+    delete payload.action_name;
+
+    delete payload.action_type;
+    const transformedPayload = {
+      action_name: actionName,
+      action_type: actionType,
+      kwargs: {
+        ...payload,
+      },
+    };
+
+    console.log(transformedPayload);
+
     if (type === CREATE_TYPE) {
-      return postAction(payload).then((response) => response);
+      return postAction(transformedPayload).then((response) => response);
     }
-    return putAction(payload, editedTeam.key).then((response) => response);
+    return putAction(transformedPayload, editedAction.key).then((response) => response);
   };
 
   const isFormComplete = () => form.validateFields()
@@ -87,14 +122,14 @@ function ActionModal({
     return null;
   };
 
-  const userOptions = () => users.map((item) => (
+  const actionOptions = () => actionJsonSchema.map((item) => (
     <Option
-      key={item.email}
-      value={item.email}
-      label={item.email}
+      key={item.title}
+      value={item.title}
+      label={item.title}
     >
       <Row align="start" style={{ alignItems: 'center', color: 'black' }}>
-        {item.email}
+        {item.title}
       </Row>
     </Option>
   ));
@@ -103,11 +138,103 @@ function ActionModal({
     // parent event callback
     onCancel();
     form.resetFields();
+    setSelectedAction('');
+  };
+
+  const handleNumberInput = (value, prop) => {
+    const obj = {};
+    if (value !== '') {
+      obj[prop] = parseInt(value, 10);
+      form.setFieldsValue(obj);
+    }
+  };
+
+  const buildValidationErrors = (errorList) => {
+    let errorString = '';
+    for (let i = 0; i < errorList.length; i += 1) {
+      const { message } = errorList[i];
+      if (message && !message.includes('unknown keyword')) {
+        errorString += `${message}\n`;
+      }
+    }
+    return errorString;
+  };
+
+  const formInputType = (propObj, placeholder, formItem) => {
+    if (propObj?.enum) {
+      return (
+        <Select>
+          {
+            propObj.enum.map((item) => <Option key={item} value={item}>{item}</Option>)
+          }
+        </Select>
+      );
+    }
+
+    if (propObj.type === 'integer') {
+      return (
+        <Input
+          placeholder={placeholder}
+          onChange={(e) => handleNumberInput(e.target.value, formItem)}
+        />
+      );
+    }
+    return (
+      <Input placeholder={placeholder} />
+    );
+  };
+
+  const buildForm = () => {
+    // Don't show these form items in the generated form
+    const ignoredFormItem = ['key', 'create_date', 'created_by', 'modified_date', 'action_name', 'action_type'];
+
+    if (selectedAction !== '') {
+      return actionJsonSchema.map((formItemObj) => {
+        if (selectedAction === formItemObj.title) {
+          return Object.keys(formItemObj.properties).map((formItem) => {
+            if (!ignoredFormItem.includes(formItem)) {
+              const propObj = formItemObj.properties[formItem];
+              const placeholder = propObj.placeholder ? propObj.placeholder : null;
+              return (
+                <Form.Item
+                  key={propObj.title}
+                  label={propObj.title}
+                  name={formItem}
+                  tooltip={propObj.description ? propObj.description : null}
+                  rules={[
+                    formItemObj.required.includes(formItem)
+                      ? { required: true, message: 'required field.' }
+                      : null,
+                    {
+                      validator: async (rule, value) => {
+                        const validate = ajv.compile(propObj);
+                        console.log(validate);
+                        console.log(validate.errors);
+                        const valid = validate(value);
+                        // no need to validate undefined values as we have 'required' rule above
+                        if (value !== undefined && !valid) {
+                          throw new Error(buildValidationErrors(validate.errors));
+                        }
+                      },
+                    },
+                  ]}
+                >
+                  {formInputType(propObj, placeholder, formItem)}
+                </Form.Item>
+              );
+            }
+            return null;
+          });
+        }
+        return null;
+      });
+    }
+    return null;
   };
 
   return (
     <Modal
-      title={type === CREATE_TYPE ? 'Create Team' : 'Update Team'}
+      title={type === CREATE_TYPE ? 'Create Action' : 'Update Action'}
       visible={visible}
       onCancel={() => {
         onCancelInternal();
@@ -151,31 +278,37 @@ function ActionModal({
         preserve={false}
       >
         <Form.Item
-          label="Team Name"
-          name="team_name"
+          label="Action Name"
+          name="action_name"
           rules={[
             {
               required: true,
-              message: 'Enter a team name',
+              message: 'Enter a action name',
             },
           ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="Members"
-          name="members"
+          label="Action Type"
+          name="action_type"
           rules={[
             {
               required: true,
-              message: 'Select the team members',
+              message: 'Select the action type',
             },
           ]}
         >
-          <Select mode="multiple" allowClear>
-            {userOptions()}
+          <Select
+            onChange={(value) => setSelectedAction(value)}
+          >
+            {actionOptions()}
           </Select>
         </Form.Item>
+        {buildForm()}
+        <Row style={{ minHeight: 25 }} justify="start" align="top">
+          {/* {getResponseStatus()} */}
+        </Row>
       </Form>
     </Modal>
   );
@@ -183,13 +316,13 @@ function ActionModal({
 
 ActionModal.defaultProps = {
   visible: false,
-  editedTeam: {},
+  editedAction: {},
 };
 
 ActionModal.propTypes = {
   visible: PropTypes.bool,
   type: PropTypes.oneOf(['', CREATE_TYPE, UPDATE_TYPE]).isRequired,
-  editedTeam: PropTypes.objectOf(Object),
+  editedAction: PropTypes.objectOf(Object),
   onCancel: PropTypes.func.isRequired,
   onFormSubmit: PropTypes.func.isRequired,
 };

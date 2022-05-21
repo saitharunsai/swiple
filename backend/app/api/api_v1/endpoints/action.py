@@ -19,7 +19,7 @@ from fastapi import HTTPException, status
 from app.models.team import Team, ResponseTeam
 from app.models.users import UserDB
 from app.models.actions import (
-    Action,
+    IntegrationAction,
 )
 
 
@@ -31,7 +31,7 @@ router = APIRouter(
 @router.get("/json_schema")
 def get_json_schema():
     actions = []
-    for action in act.type_map.values():
+    for action in act.integration_actions.values():
         json_schema = json_schema_to_single_doc(action.schema())
         actions.append(json_schema)
 
@@ -70,24 +70,13 @@ def list_actions(
 
 @router.post("")
 def create_action(
-        action: Action,
+        action: IntegrationAction,
 ):
-    try:
-        action.create_date = utils.current_time()
-        action.modified_date = utils.current_time()
-        action_as_dict: dict = act.type_map[action.action_type](**action.dict(exclude_none=True)).dict(exclude_none=True)
-    except KeyError:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Action '{action.action_type}' has not been implemented"
-        )
-    except ValidationError as exc:
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content=jsonable_encoder({"detail": exc.errors(), "body": action}),
-        )
+    action.create_date = utils.current_time()
+    action.modified_date = utils.current_time()
 
-    _check_action_does_not_exist(action_as_dict)
+    _check_action_does_not_exist(action)
+    action_as_dict = action.dict(exclude_none=True)
 
     insert_team = client.index(
         index=settings.ACTION_INDEX,
@@ -106,13 +95,13 @@ def create_action(
 
 @router.put("/{key}")
 def update_action(
-        action: Action,
+        action: IntegrationAction,
         key: str,
 ):
 
     try:
         action.modified_date = utils.current_time()
-        action_as_dict: dict = act.type_map[action.action_type](**action.dict(exclude_none=True)).dict(exclude_none=True)
+        action_as_dict: dict = act.integration_actions[action.action_type](**action.dict(exclude_none=True)).dict(exclude_none=True)
     except KeyError:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -200,13 +189,13 @@ def _get_action(key: str):
     return response
 
 
-def _check_action_does_not_exist(action: dict):
+def _check_action_does_not_exist(action: IntegrationAction):
     query = {
         "query": {
             "bool": {
                 "must": {
                     "match": {
-                        "action_name": action["action_name"]
+                        "action_name.keyword": action.action_name
                     }
                 }
             }
@@ -221,5 +210,5 @@ def _check_action_does_not_exist(action: dict):
     if response["hits"]["total"]["value"] > 0:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Action '{action['action_name']}' already exists"
+            detail=f"Action '{action.action_name}' already exists"
         )

@@ -91,6 +91,10 @@ export const deleteTeam = (key) => axios.delete(`${BASE_URL}/team/${key}`)
 // Action
 // ========================================================
 
+export const getActionsJsonSchema = () => axios.get(`${BASE_URL}/action/json_schema`)
+  .then((response) => response)
+  .catch((error) => errorHandler(error));
+
 export const getActions = () => axios.get(`${BASE_URL}/action`)
   .then((response) => response)
   .catch((error) => errorHandler(error));
@@ -140,7 +144,7 @@ export const postDataSource = (data) => {
   const payload = data;
   const path = payload.engine.toLowerCase();
   delete payload.engine;
-  // datasource name lowercased = endpoint path
+
   return axios.post(
     `${BASE_URL}/datasource/${path}`,
     data,

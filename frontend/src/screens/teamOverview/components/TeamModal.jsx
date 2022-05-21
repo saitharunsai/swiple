@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Button, Form, Input, message, Modal, Row, Select, Typography,
+  Button, Form, Input, message, Modal, Row, Select,
 } from 'antd';
 import { getUsers, postTeam, putTeam } from '../../../Api';
 
 import AsyncButton from '../../../components/AsyncButton';
 
 const { Option } = Select;
-const { Text } = Typography;
 const layout = {
   labelCol: {
     span: 8,

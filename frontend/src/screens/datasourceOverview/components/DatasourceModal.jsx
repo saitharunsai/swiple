@@ -10,10 +10,7 @@ import {
 import { getDataSourcesJsonSchema, postDataSource, putDataSource } from '../../../Api';
 import AsyncButton from '../../../components/AsyncButton';
 
-const Ajv = require('ajv');
-
-const ajv = new Ajv();
-ajv.addKeyword('placeholder');
+import ajv from '../../../JsonSchemaFormValidator';
 
 const { Option } = Select;
 const { Text } = Typography;
